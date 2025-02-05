@@ -70,7 +70,7 @@ func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 			break
 		}
 		if !inQuote && element == '\r' {
-			count, err = r.Read(buf)
+			count, _ = r.Read(buf)
 			if count > 0 && buf[0] != '\n' {
 				line = append(line, element)
 			}
