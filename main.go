@@ -16,7 +16,7 @@ func main() {
 	}
 	defer file.Close()
 
-	var csvparser csvlib.CSVParser = csvlib.MyCSVParser{}
+	var csvparser csvlib.CSVParser = &csvlib.MyCSVParser{}
 
 	for {
 		line, err := csvparser.ReadLine(file)
@@ -27,5 +27,19 @@ func main() {
 			fmt.Println("Error reading line:", err)
 			return
 		}
+
+		fmt.Println(line)
+
+		for i := 0; i < csvparser.GetNumberOfFields(); i++ {
+			field, err := csvparser.GetField(i)
+			if err != nil {
+				fmt.Println("Error to get field: ", err)
+			} else {
+				fmt.Printf("Field %d: %s\n", i+1, field)
+			}
+		}
+
+		fmt.Println()
+		fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
 	}
 }
