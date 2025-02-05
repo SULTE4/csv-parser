@@ -1,0 +1,30 @@
+id, name, age
+01, Simon, 28
+02, Dimon, 23
+03, Evan, 34
+04, Eva, 27
+05, Hanna, 19
+
+"ab", Aman, 33
+"12", "Sanya", "32"
+"", "c""d", "1"
+, "Sanya", 1
+"", "", ""
+
+
+,,
+ad,Sasha, 12
+06, 122, 15
+,Tima, 32
+07, Jack,
+,,44
+, Peter, 
+
+10, Ada1, 33
+# it is just comment, to permit code can handle with comment sign 
+
+
+
+08, Pavel, qq
+09, Sanya, 1q
+

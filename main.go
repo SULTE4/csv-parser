@@ -1,4 +1,50 @@
 package main
+<<<<<<< HEAD
 
 func main() {
+=======
+
+import (
+	"fmt"
+	"io"
+	"os"
+
+	"a-library-for-others/csvlib"
+)
+
+func main() {
+	file, err := os.Open("example.csv")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	var csvparser csvlib.CSVParser = &csvlib.MyCSVParser{}
+
+	for {
+		line, err := csvparser.ReadLine(file)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println("Error reading line:", err)
+			return
+		}
+
+		fmt.Println(line)
+
+		for i := 0; i < csvparser.GetNumberOfFields(); i++ {
+			field, err := csvparser.GetField(i)
+			if err != nil {
+				fmt.Println("Error to get field: ", err)
+			} else {
+				fmt.Printf("Field %d: %s\n", i+1, field)
+			}
+		}
+
+		fmt.Println()
+		fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
+	}
+>>>>>>> e1055596af78e446ce085c6d9eb7bd0bc7475d4c
 }
