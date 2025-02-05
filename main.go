@@ -1,8 +1,5 @@
 package main
-<<<<<<< HEAD
-
-func main() {
-=======
+package main
 
 import (
 	"fmt"
@@ -13,6 +10,8 @@ import (
 )
 
 func main() {
+}
+
 	file, err := os.Open("example.csv")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -46,5 +45,4 @@ func main() {
 		fmt.Println()
 		fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
 	}
->>>>>>> e1055596af78e446ce085c6d9eb7bd0bc7475d4c
 }
