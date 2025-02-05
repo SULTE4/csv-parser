@@ -1,8 +1,6 @@
 package csvlib
 
 import (
-	"errors"
-	"fmt"
 	"io"
 )
 
@@ -12,24 +10,38 @@ type CSVParser interface {
 	GetNumberOfFields() int
 }
 
-type fields string
-
 type MyCSVParser struct {
-	line        fields
-	rows        []string
+	row         []string
 	fieldNumber int
 }
 
+type fields []byte
+
 func (f fields) DivideFields() []string {
-	// result := []string{}
+	flds := []string{}
+	field := []byte{}
+	inQuote := false
+	for i := 0; i < len(f); i++ {
+		element := f[i]
 
-	return nil
+		if element == '"' {
+			if inQuote && i+1 < len(f) && f[i+1] == '"' {
+				i++
+			} else {
+				inQuote = !inQuote
+			}
+		} else if element == ',' && !inQuote {
+			flds = append(flds, string(field))
+			field = []byte{}
+		} else {
+			field = append(field, element)
+		}
+	}
+
+	flds = append(flds, string(field))
+
+	return flds
 }
-
-var (
-	ErrQuote      = errors.New("excess or missing \" in quoted-field")
-	ErrFieldCount = errors.New("wrong number of fields")
-)
 
 func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 	var line fields
@@ -39,13 +51,10 @@ func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 	for {
 		count, err := r.Read(buf)
 
-		if buf[0] == '\n' {
-			fmt.Print("----------->")
-		}
-		fmt.Println(string(buf[0]))
-
 		if count == 0 {
 			if err == io.EOF && len(line) > 0 {
+				c.row = line.DivideFields()
+				c.fieldNumber = len(c.row)
 				return string(line), nil
 			}
 			return "", err
@@ -57,31 +66,36 @@ func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 			inQuote = !inQuote
 		}
 
-		if !inQuote && (element == '\n' || element == '\r') {
-			if element == '\r' {
-				count, err = r.Read(buf)
-				if count > 0 && buf[0] != '\n' {
-					line += fields(element)
-				}
+		if !inQuote && element == '\n' {
+			break
+		}
+		if !inQuote && element == '\r' {
+			count, err = r.Read(buf)
+			if count > 0 && buf[0] != '\n' {
+				line = append(line, element)
 			}
 			break
 		}
 
-		line += fields(element)
-
+		line = append(line, element)
 	}
 
 	if inQuote {
 		return "", ErrQuote
 	}
 
-	return "", nil
+	c.row = line.DivideFields()
+	c.fieldNumber = len(c.row)
+	return string(line), nil
 }
 
 func (c *MyCSVParser) GetNumberOfFields() int {
-	return 1
+	return c.fieldNumber
 }
 
 func (c *MyCSVParser) GetField(n int) (string, error) {
-	return "", nil
+	if n < 0 || n >= c.fieldNumber {
+		return "", ErrFieldCount
+	}
+	return c.row[n], nil
 }
