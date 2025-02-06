@@ -25,7 +25,7 @@ func (f fields) DivideFields() []string {
 		element := f[i]
 		switch element {
 		case '"':
-			if inQuote && i+1 < len(f) && f[i+1] == '"' {
+			if i+1 < len(f) && f[i+1] == '"' {
 				field = append(field, '"')
 				i++
 			} else {
