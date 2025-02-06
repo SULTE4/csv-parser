@@ -17,6 +17,19 @@ type MyCSVParser struct {
 
 type fields []byte
 
+func nextQuote(f fields) int {
+	for i, _ := range f {
+		if f[i] == 32 {
+			continue
+		}
+		if f[i] == '"' {
+			return i
+		} else {
+			return -1
+		}
+	}
+	return -1
+}
 func (f fields) DivideFields() []string {
 	flds := []string{}
 	field := []byte{}
@@ -25,7 +38,7 @@ func (f fields) DivideFields() []string {
 		element := f[i]
 		switch element {
 		case '"':
-			if i+1 < len(f) && f[i+1] == '"' {
+			if nextQuote(f[i+1:]) != -1 {
 				field = append(field, '"')
 				i++
 			} else {
