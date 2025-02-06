@@ -23,22 +23,28 @@ func (f fields) DivideFields() []string {
 	inQuote := false
 	for i := 0; i < len(f); i++ {
 		element := f[i]
-
-		if element == '"' {
+		switch element {
+		case '"':
 			if inQuote && i+1 < len(f) && f[i+1] == '"' {
+				field = append(field, '"')
 				i++
 			} else {
 				inQuote = !inQuote
 			}
-		} else if element == ',' && !inQuote {
-			flds = append(flds, string(field))
-			field = []byte{}
-		} else {
+		case ',':
+			if inQuote {
+				field = append(field, element)
+			} else {
+				flds = append(flds, string(field))
+				field = nil
+			}
+		default:
 			field = append(field, element)
 		}
 	}
-
-	flds = append(flds, string(field))
+	if len(string(field)) != 0 {
+		flds = append(flds, string(field))
+	}
 
 	return flds
 }
