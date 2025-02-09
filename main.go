@@ -17,7 +17,7 @@ func main() {
 	defer file.Close()
 
 	var csvparser csvlib.CSVParser = &csvlib.MyCSVParser{}
-
+	// fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
 	for {
 		line, err := csvparser.ReadLine(file)
 		if err != nil {
@@ -38,8 +38,7 @@ func main() {
 				fmt.Printf("Field %d: %s\n", i+1, field)
 			}
 		}
-
-		fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
+		// fmt.Println("Number of Fields: ", csvparser.GetNumberOfFields())
 		fmt.Println("=====================================")
 	}
 }

@@ -11,99 +11,132 @@ type CSVParser interface {
 }
 
 type MyCSVParser struct {
+	headLine    []string
 	row         []string
 	fieldNumber int
 }
 
 type fields []byte
 
-func nextQuote(f fields) int {
-	for i, _ := range f {
-		if f[i] == 32 {
-			continue
-		}
-		if f[i] == '"' {
-			return i
-		} else {
-			return -1
-		}
-	}
-	return -1
-}
-func (f fields) DivideFields() []string {
-	flds := []string{}
-	field := []byte{}
-	inQuote := false
-	for i := 0; i < len(f); i++ {
-		element := f[i]
-		switch element {
-		case '"':
-			if nextQuote(f[i+1:]) != -1 {
-				field = append(field, '"')
-				i++
-			} else {
-				inQuote = !inQuote
-			}
-		case ',':
-			if inQuote {
-				field = append(field, element)
-			} else {
-				flds = append(flds, string(field))
-				field = nil
-			}
-		default:
-			field = append(field, element)
-		}
-	}
-	if len(string(field)) != 0 {
-		flds = append(flds, string(field))
-	}
+// func nextQuote()	for i := range f {
+// 		if f[i] == ' ' {
+// 			continue
+// 		}
+// 		if f[i] == '"' {
+// 			return i
+// 		} else {
+// 			return -1
+// 		}
+// 	}
+// 	return -1
+// // }
+// func (f fields) DivideFields() ([]string, error) {
+// 	flds := []string{}
+// 	field := []byte{}
+// 	inQuote := false
+// 	afterComma := false
 
-	return flds
-}
+// 	for i := 0; i < len(f); i++ {
+// 		elementnue
+// 		}
+
+// 		switch element {
+// 		case '"':
+// 			if nextQuote(f[i+1:]) != -1 {
+// 				field = append(field, '"')
+// 				afterComma = false
+// 				i++
+// 			} else {
+// 				inQuote = !inQuote
+// 			}
+// 		case ',':
+// 			if inQuote {
+// 				field = append(field, element)
+// 			}
+//             else {
+//                 if len(field) == 1 && field[0] == '"' {
+//                     flds = append(flds, "")
+//                 }else{
+// 				    flds = append(flds, string(field))
+//                 }
+// 				afterComma = true
+// 				field = nil
+// 			}
+// 		default:
+// 			field = append(field, element)
+// 			if afterComma && element == ' ' {
+// 				continue
+// 			}
+// 			afterComma= false
+
+// 		}
+// 	}
+
+// 	if afterComma {
+// 		return nil, ErrFieldEmpty
+// 	}
+
+//     if len(field) == 1 && field[0] == '"' {
+//         flds = append(flds, "")
+// 	}else if len(string(field)) != 0 {
+// 		flds = append(flds, string(field))
+// 	}
+
+// 	return flds, nil
+// }
 
 func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 	var line fields
 	buf := make([]byte, 1)
 	inQuote := false
+	hasContent := false
 
 	for {
 		count, err := r.Read(buf)
+		if count > 0 {
+			element := buf[0]
 
-		if count == 0 {
-			if err == io.EOF && len(line) > 0 {
-				c.row = line.DivideFields()
-				c.fieldNumber = len(c.row)
-				return string(line), nil
+			if element == '\r' {
+				continue
 			}
+			if element == '"' {
+				inQuote = !inQuote
+			}
+
+			if !inQuote && element == '\n' {
+				break
+			}
+
+			line = append(line, element)
+			hasContent = true
+		}
+
+		if err == io.EOF {
+			if inQuote {
+				return "", ErrQuote
+			}
+			if !hasContent {
+				return "", io.EOF
+			}
+			break
+		} else if err != nil {
 			return "", err
 		}
-
-		element := buf[0]
-
-		if element == '"' {
-			inQuote = !inQuote
-		}
-
-		if !inQuote && element == '\n' {
-			break
-		}
-		if !inQuote && element == '\r' {
-			count, _ = r.Read(buf)
-			if count > 0 && buf[0] != '\n' {
-				line = append(line, element)
-			}
-			break
-		}
-
-		line = append(line, element)
+	}
+	tmp, err := line.DivideFields()
+	if err != nil {
+		return "", err
 	}
 
-	if inQuote {
-		return "", ErrQuote
+	if len(c.headLine) == 0 {
+		c.headLine = tmp
 	}
 
-	c.row = line.DivideFields()
+	if len(c.headLine) != len(tmp) {
+		return "", ErrFieldCount
+	}
+
+	c.row = tmp
 	c.fieldNumber = len(c.row)
 	return string(line), nil
 }
@@ -114,7 +147,7 @@ func (c *MyCSVParser) GetNumberOfFields() int {
 
 func (c *MyCSVParser) GetField(n int) (string, error) {
 	if n < 0 || n >= c.fieldNumber {
-		return "", ErrFieldCount
+		return "", ErrFieldIndex
 	}
 	return c.row[n], nil
 }
