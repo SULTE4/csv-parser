@@ -1,6 +1,14 @@
-Name,Age,Occupation
-John Doe,28,"fad
-fdass"
-Jane Doe,32,Designer
-Sam Smith,24,Developer
-"Simple","","Extra empty fields"
+"id","name","age","description"
+"1","John Doe","25","Normal text"
+"2","Jane, Smith","30","Comma in quotes"
+"3","Alice ""The Great""","27","Double quotes inside quotes"
+"4","Robert","40","Has a newline
+inside the field"
+"5","Emily, ""The Writer""","35","Comma and double quotes"
+"6","","28","Empty name field"
+"7","David
+Wilson","50","Newline in quoted name"
+"8","""""""Triple quoted""""""","33","Multiple double quotes"
+"9","Simple","","Extra empty fields"
+"10","Last","45","Ends without CRLF"
+"","","",""

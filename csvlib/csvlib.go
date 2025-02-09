@@ -18,72 +18,72 @@ type MyCSVParser struct {
 
 type fields []byte
 
-// func nextQuote()	for i := range f {
-// 		if f[i] == ' ' {
-// 			continue
-// 		}
-// 		if f[i] == '"' {
-// 			return i
-// 		} else {
-// 			return -1
-// 		}
-// 	}
-// 	return -1
-// // }
-// func (f fields) DivideFields() ([]string, error) {
-// 	flds := []string{}
-// 	field := []byte{}
-// 	inQuote := false
-// 	afterComma := false
+func (f fields) nextQuote() int {
+	for i := range f {
+		if f[i] == ' ' {
+			continue
+		}
+		if f[i] == '"' {
+			return i
+		} else {
+			return -1
+		}
+	}
+	return -1
+}
 
-// 	for i := 0; i < len(f); i++ {
-// 		elementnue
-// 		}
+func (f fields) DivideFields() ([]string, error) {
+	flds := []string{}
+	field := []byte{}
+	inQuote := false
+	afterComma := false
 
-// 		switch element {
-// 		case '"':
-// 			if nextQuote(f[i+1:]) != -1 {
-// 				field = append(field, '"')
-// 				afterComma = false
-// 				i++
-// 			} else {
-// 				inQuote = !inQuote
-// 			}
-// 		case ',':
-// 			if inQuote {
-// 				field = append(field, element)
-// 			}
-//             else {
-//                 if len(field) == 1 && field[0] == '"' {
-//                     flds = append(flds, "")
-//                 }else{
-// 				    flds = append(flds, string(field))
-//                 }
-// 				afterComma = true
-// 				field = nil
-// 			}
-// 		default:
-// 			field = append(field, element)
-// 			if afterComma && element == ' ' {
-// 				continue
-// 			}
-// 			afterComma= false
+	for i := 0; i < len(f); i++ {
+		element := f[i]
 
-// 		}
-// 	}
+		switch element {
+		case '"':
+			if f[i+1:].nextQuote() != -1 {
+				field = append(field, '"')
+				afterComma = false
+				i++
+			} else {
+				inQuote = !inQuote
+			}
+		case ',':
+			if inQuote {
+				field = append(field, element)
+			} else {
+				if len(field) == 1 && field[0] == '"' {
+					flds = append(flds, "")
+				} else {
+					flds = append(flds, string(field))
+				}
+				afterComma = true
+				field = nil
+			}
+		default:
+			field = append(field, element)
+			if afterComma && element == ' ' {
+				continue
+			}
+			afterComma = false
 
-// 	if afterComma {
-// 		return nil, ErrFieldEmpty
-// 	}
+		}
+	}
 
-//     if len(field) == 1 && field[0] == '"' {
-//         flds = append(flds, "")
-// 	}else if len(string(field)) != 0 {
-// 		flds = append(flds, string(field))
-// 	}
+	if afterComma {
+		return nil, ErrFieldEmpty
+	}
 
-// 	return flds, nil
-// }
+	if len(field) == 1 && field[0] == '"' {
+		flds = append(flds, "")
+	} else if len(string(field)) != 0 {
+		flds = append(flds, string(field))
+	}
+
+	return flds, nil
+}
 
 func (c *MyCSVParser) ReadLine(r io.Reader) (string, error) {
 	var line fields
