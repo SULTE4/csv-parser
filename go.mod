@@ -1,3 +1,3 @@
-module a-library-for-others
+module github.com/SULTE4/csv-parser
 
-go 1.22
+go 1.25.1

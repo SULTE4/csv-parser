@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"a-library-for-others/csvlib"
+	"github.com/SULTE4/csv-parser/csvlib"
 )
 
 func main() {
